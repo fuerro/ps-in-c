@@ -99,6 +99,8 @@ static void list_processes (const char * dir_name)
 		ssize_t read;
 		char * procname = NULL;
 		char * memusage = NULL;
+		char * temp = "0";
+		char * defu = " <defunct>";
 
 		//booleans are great
 		bool isuserprocess = 0;
@@ -142,6 +144,20 @@ static void list_processes (const char * dir_name)
 				size_t len = strlen(memusage);
 				cropString(memusage, len-4, len);
 				//since we got all the information we need, we set the boolean to mark we are done
+				doneread = 1;
+			}
+
+			//fear the walking dead: check for zombies
+			if (strstr(line, "State:") && strstr(line, "Z")){
+				memusage = malloc(lent+1);
+				if (memusage == NULL){
+					fprintf(stderr, "Failed to allocate one byte: %s", strerror(errno));
+					exit (EXIT_FAILURE);
+				}
+				strcpy(memusage, temp);
+				cropString(procname, 5, len);
+				strcat(procname, defu);
+				//booleans!
 				doneread = 1;
 			}
 

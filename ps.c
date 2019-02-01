@@ -99,7 +99,8 @@ static void list_processes (const char * dir_name)
 		ssize_t read;
 		char * procname = NULL;
 		char * memusage = NULL;
-		char * temp = "0";
+		//strings for zombie-handling
+		char * memzero = "           0";
 		char * defu = " <defunct>";
 
 		//booleans are great
@@ -154,10 +155,11 @@ static void list_processes (const char * dir_name)
 					fprintf(stderr, "Failed to allocate one byte: %s", strerror(errno));
 					exit (EXIT_FAILURE);
 				}
-				strcpy(memusage, temp);
-				cropString(procname, 5, len);
+				//fill the memusage-string with "0", because VmRSS line is empty
+				strcpy(memusage, memzero);
+				//append <defunct> String to match the output of the test program
 				strcat(procname, defu);
-				//booleans!
+				//booleans! since VmRSS is not mentioned in the status file of a zombie, we set our boolean here
 				doneread = 1;
 			}
 
@@ -205,6 +207,6 @@ int main ()
 {
     //call our process-function
     list_processes ("/proc");
-    //we can return 0 here, since no errors occured
+    //we can return 0 here, since our list_process function handles errors
     return 0;
 }
